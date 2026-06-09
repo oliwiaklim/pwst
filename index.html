@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeGuard - Monitorowanie Zdrowia</title>
+    <style>
+        /* === ZMIENNE I BAZOWE STYLE (Zgodnie z RNF-04 - duże fonty) === */
+        :root {
+            --primary-blue: #0056b3;
+            --alert-red: #d9534f;
+            --success-green: #5cb85c;
+            --bg-color: #f4f7f6;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-size: 18px; /* Powiększony font bazowy */
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 500px;
+            min-height: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === EKRAN LOGOWANIA === */
+        #login-screen {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="email"], input[type="password"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover { background-color: #004494; }
+
+        /* === PANEL OPIEKUNA (ALERTY I DANE) === */
+        #dashboard-screen {
+            display: none; /* Ukryte na start */
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .dashboard-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: #fff;
+            border-left: 6px solid var(--success-green);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card.alert {
+            border-left-color: var(--alert-red);
+            background-color: #fdf2f2;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .card.alert .card-title { color: var(--alert-red); }
+
+        .metric {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-logout {
+            background-color: #ccc;
+            color: #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="login-screen">
+            <h1>💙 LifeGuard</h1>
+            <p style="text-align: center; color: #666; margin-top: -20px;">System Monitorowania Zdrowia</p>
+            
+            <div class="form-group">
+                <label for="email">Adres E-mail</label>
+                <input type="email" id="email" placeholder="np. jan@kowalski.pl" value="opiekun@lifeguard.pl">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="password" id="password" value="123456">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Zaloguj jako:</label>
+                <select id="role">
+                    <option value="opiekun">Opiekun (Widok Alertów)</option>
+                    <option value="senior">Senior (Tylko status)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="zaloguj()">Zaloguj się</button>
+        </div>
+
+        <div id="dashboard-screen">
+            <div class="header">
+                Panel Opiekuna
+            </div>
+            
+            <div class="dashboard-content">
+                <h3>Ostatnie powiadomienia</h3>
+                
+                <div class="card alert">
+                    <div class="card-title">⚠️ WYSOKIE TĘTNO!</div>
+                    <div>Pacjent: <strong>Jan Kowalski</strong></div>
+                    <div>Czas: 15:02 (Przed chwilą)</div>
+                    <div class="metric" style="color: var(--alert-red);">145 BPM</div>
+                    <button class="btn" style="background-color: var(--alert-red); padding: 10px; margin-top: 10px; font-size: 16px;">Potwierdź odbiór</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Prawidłowy pomiar</div>
+                    <div>Pacjent: <strong>Anna Nowak</strong></div>
+                    <div>Czas: 14:45</div>
+                    <div class="metric">72 BPM</div>
+                </div>
+
+                <button class="btn btn-logout" onclick="wyloguj()">Wyloguj się</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function zaloguj() {
+            // Ukrywa ekran logowania, pokazuje panel
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'flex';
+        }
+
+        function wyloguj() {
+            // Ukrywa panel, pokazuje ekran logowania
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
